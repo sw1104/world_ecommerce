@@ -32,6 +32,9 @@ export class User {
   @Prop({ default: 0 })
   bankAccountNum: number;
 
+  @Prop({ default: 0 })
+  secondPhone: string;
+
   @Prop({ default: new Date(), type: mongoose.Schema.Types.Date })
   createdAt: Date;
 

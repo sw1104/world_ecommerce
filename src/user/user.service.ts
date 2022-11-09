@@ -11,6 +11,7 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from './entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { Payload } from './dto/payload.dto';
+import { Seller } from './dto/seller.dto';
 
 @Injectable()
 export class UserService {
@@ -52,5 +53,9 @@ export class UserService {
     } else {
       throw new UnauthorizedException('이메일 또는 비밀번호를 확인하세요.');
     }
+  }
+
+  async registerSeller(email: string, seller: Seller) {
+    return await this.userModel.updateOne({ email: email }, { seller: seller });
   }
 }

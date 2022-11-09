@@ -1,40 +1,5 @@
-import {
-  IsEmail,
-  IsString,
-  Matches,
-  MaxLength,
-  MinLength,
-  registerDecorator,
-  ValidationOptions,
-  ValidationArguments,
-} from 'class-validator';
-
-export const NotIn = (
-  property: string,
-  validationOptions?: ValidationOptions,
-) => {
-  return (object: Object, propertyName: string) => {
-    registerDecorator({
-      name: 'NotIn',
-      target: object.constructor,
-      propertyName,
-      options: validationOptions,
-      constraints: [property],
-      validator: {
-        validate(value: any, args: ValidationArguments) {
-          const [relatedPropertyName] = args.constraints;
-          const relatedValue = (args.object as any)[relatedPropertyName];
-          return (
-            typeof value === 'string' &&
-            typeof relatedValue === 'string' &&
-            !relatedValue.includes(value)
-          );
-        },
-      },
-    });
-  };
-};
-
+import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
+import { NotIn } from '../decorator/notIn.decorator';
 export class UserSignUpDto {
   id: string;
   @IsString()

@@ -1,7 +1,18 @@
-import { Body, HttpStatus, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  HttpStatus,
+  Controller,
+  Post,
+  UseGuards,
+  Patch,
+  Req,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserSignUpDto } from './dto/userSignUp.dto';
 import { UserSignInDto } from './dto/userSignIn.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { Seller } from './dto/seller.dto';
+import { GetUserEmail } from './decorator/userEmail.decorator';
 
 @Controller('users')
 export class UserController {
@@ -17,5 +28,22 @@ export class UserController {
   async userSignIn(@Body() userSignInDto: UserSignInDto) {
     const token = await this.userService.userSignIn(userSignInDto);
     return { status: HttpStatus.OK, token };
+  }
+
+  @Patch('/seller/register')
+  @UseGuards(AuthGuard())
+  async registerSeller(
+    @Req() req,
+    @GetUserEmail() email: string,
+    @Body() seller: Seller,
+  ) {
+    await this.userService.registerSeller(email, seller);
+    return { status: HttpStatus.OK, message: '셀러 등록 성공' };
+  }
+
+  @Post('/test')
+  @UseGuards(AuthGuard())
+  async test(@Req() req) {
+    console.log(req);
   }
 }
