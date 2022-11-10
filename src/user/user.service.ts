@@ -17,7 +17,7 @@ import { Seller } from './dto/seller.dto';
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private jwt: JwtService,
+    private jwtService: JwtService,
   ) {}
   async userSignUp(userSignUpDto: UserSignUpDto) {
     const { email } = userSignUpDto;
@@ -46,7 +46,7 @@ export class UserService {
     const { email, password } = userSignInDto;
     const user = await this.isExistByEmail(email);
     const payload: Payload = { email };
-    const accessToken = await this.jwt.sign(payload);
+    const accessToken = await this.jwtService.sign(payload);
 
     if (user && (await bcrypt.compare(password, user.password))) {
       return { accessToken };
