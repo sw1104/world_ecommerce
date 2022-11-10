@@ -14,6 +14,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Seller } from './dto/seller.dto';
 import { GetUserEmail } from './decorator/userEmail.decorator';
 
+export class JwtAuthGuard extends AuthGuard('jwt') {}
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -32,17 +33,13 @@ export class UserController {
 
   @Patch('/seller/register')
   @UseGuards(AuthGuard())
-  async registerSeller(
-    @Req() req,
-    @GetUserEmail() email: string,
-    @Body() seller: Seller,
-  ) {
+  async registerSeller(@GetUserEmail() email: string, @Body() seller: Seller) {
     await this.userService.registerSeller(email, seller);
     return { status: HttpStatus.OK, message: '셀러 등록 성공' };
   }
 
   @Post('/test')
-  @UseGuards(AuthGuard())
+  @UseGuards(JwtAuthGuard)
   async test(@Req() req) {
     console.log(req);
   }

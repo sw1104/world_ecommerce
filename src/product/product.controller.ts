@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpStatus,
+  Get,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -7,28 +16,36 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productService.create(createProductDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.productService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productService.findOne(+id);
+  @Post('/register')
+  async registerProduct(@Body() createProductDto: CreateProductDto) {
+    await this.productService.registerProduct(createProductDto);
+    return { status: HttpStatus.CREATED, message: '상품 등록 완료' };
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(+id, updateProductDto);
+  async editProduct(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
+    await this.productService.editProduct(id, updateProductDto);
+    return { status: HttpStatus.OK, message: '상품이 수정 되었습니다.' };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productService.remove(+id);
+  async deleteProduct(@Param('id') id: string) {
+    await this.productService.deleteProduct(id);
+    return { status: HttpStatus.OK, message: '상품이 삭제 되었습니다.' };
+  }
+
+  @Get('/')
+  async getProductList() {
+    const data = await this.productService.getProductList();
+    return { status: HttpStatus.OK, data };
+  }
+
+  @Get(':id')
+  async getProductDetail(@Param('id') id: string) {
+    const data = await this.productService.getProductDetail(id);
+    return { status: HttpStatus.OK, data };
   }
 }
