@@ -1,34 +1,46 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Body,
+  HttpStatus,
+  Controller,
+  Post,
+  UseGuards,
+  Patch,
+  Req,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UserSignUpDto } from './dto/userSignUp.dto';
+import { UserSignInDto } from './dto/userSignIn.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { Seller } from './dto/seller.dto';
+import { GetUserEmail } from './decorator/userEmail.decorator';
 
-@Controller('user')
+export class JwtAuthGuard extends AuthGuard('jwt') {}
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  @Post('/signup')
+  async userSignUp(@Body() userSignUpDto: UserSignUpDto) {
+    await this.userService.userSignUp(userSignUpDto);
+    return { status: HttpStatus.CREATED, message: '회원가입 성공' };
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  @Post('/signin')
+  async userSignIn(@Body() userSignInDto: UserSignInDto) {
+    const token = await this.userService.userSignIn(userSignInDto);
+    return { status: HttpStatus.OK, token };
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @Patch('/seller/register')
+  @UseGuards(AuthGuard())
+  async registerSeller(@GetUserEmail() email: string, @Body() seller: Seller) {
+    await this.userService.registerSeller(email, seller);
+    return { status: HttpStatus.OK, message: '셀러 등록 성공' };
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @Post('/test')
+  @UseGuards(JwtAuthGuard)
+  async test(@Req() req) {
+    console.log(req);
   }
 }
